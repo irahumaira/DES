@@ -146,13 +146,15 @@ def start():
     rl16 = r[16] + l[16]
     cipher_binary = do_ip_inv(rl16)
     cipher_binary_splitted = utils.split_string(cipher_binary, 8)
-    chiper = ''
+    cipher = ''
     for i in range(len(cipher_binary_splitted)):
-        chiper += utils.binary_to_hex(cipher_binary_splitted[i])
+        cipher += utils.binary_to_hex(cipher_binary_splitted[i])
     print ''
     utils.debug('RL16', rl16, 8)
     utils.debug('cipher binary', cipher_binary, 8)
-    utils.debug('chiper', chiper)
+    utils.debug('cipher', cipher)
 
+    with open('output.txt', 'wb') as f:
+        f.write(cipher)
 
 start()
