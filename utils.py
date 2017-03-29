@@ -9,6 +9,8 @@ def string_to_binary(text):
     binary = ''
     for c in text:
         binary += (format(ord(c), 'b').zfill(8))
+    for i in range(8 - len(text)):
+        binary += '00000000'
     return binary
 
 
@@ -21,7 +23,7 @@ def binary_to_int(binary):
 
 
 def binary_to_hex(binary):
-    return hex(int(binary, 2))[2:]
+    return hex(int(binary, 2))[2:].zfill(2)
 
 
 def split_string(text, length):

@@ -23,14 +23,13 @@ def sbox(binary):
 
 
 def start():
-
     # plain text
     with open('input.txt', 'rb') as f:
         plain = f.read()
     plain_splitted = utils.string_to_array(plain, 8)
     plain_binary_splitted = []
-    for plain in plain_splitted:
-        plain_binary_splitted.append(utils.string_to_binary(plain))
+    for p in plain_splitted:
+        plain_binary_splitted.append(utils.string_to_binary(p))
     print ''
     utils.debug('plain text', [plain])
     utils.debug('splitted', plain_splitted)
@@ -42,14 +41,6 @@ def start():
     print ''
     utils.debug('key', key)
     utils.debug('key binary', key_binary, 8)
-
-    # generate L, R
-    lr0 = permute(plain_binary_splitted[0], tables.IP)
-    l = [lr0[:len(tables.IP) / 2]]
-    r = [lr0[len(tables.IP) / 2:]]
-    print ''
-    utils.debug('L0', l[0], 8)
-    utils.debug('R0', r[0], 8)
 
     # generate C, D
     cd0 = permute(key_binary, tables.PC1)
@@ -69,38 +60,53 @@ def start():
         k.append(permute(c[i + 1] + d[i + 1], tables.PC2))
         utils.debug('K' + str(i + 1), k[i + 1], 6)
 
-    # ---
-    er = []
-    a = ['']
-    b = ['']
-    pb = ['']
-    for i in range(16):
-        er.append(permute(r[i], tables.EXPANSION))
-        a.append(utils.xor(er[i], k[i + 1]))
-        b.append(sbox(a[i + 1]))
-        pb.append(permute(b[i + 1], tables.PBOX))
-        r.append(utils.xor(l[i], pb[i + 1]))
-        l.append(r[i])
-        print ''
-        utils.debug('ER' + str(i), er[i], 6)
-        utils.debug('A' + str(i + 1), a[i], 6)
-        utils.debug('B' + str(i + 1), b[i], 4)
-        utils.debug('PB' + str(i + 1), pb[i], 8)
-        utils.debug('R' + str(i + 1), r[i + 1], 8)
-        utils.debug('L' + str(i + 1), l[i + 1], 8)
+    final_cipher = ''
+    for i in range(len(plain_splitted)):
 
-    # cipher
-    cipher_binary = permute(r[16] + l[16], tables.IP_INV)
-    cipher_binary_splitted = utils.string_to_array(cipher_binary, 8)
-    cipher = ''
-    for i in range(len(cipher_binary_splitted)):
-        cipher += utils.binary_to_hex(cipher_binary_splitted[i])
-    print ''
-    utils.debug('cipher binary', cipher_binary, 8)
-    utils.debug('cipher', cipher)
+        # generate L, R
+        lr0 = permute(plain_binary_splitted[i], tables.IP)
+        l = [lr0[:len(tables.IP) / 2]]
+        r = [lr0[len(tables.IP) / 2:]]
+        print ''
+        utils.debug('L0', l[0], 8)
+        utils.debug('R0', r[0], 8)
+
+        # ---
+        er = []
+        a = ['']
+        b = ['']
+        pb = ['']
+        for i in range(16):
+            er.append(permute(r[i], tables.EXPANSION))
+            a.append(utils.xor(er[i], k[i + 1]))
+            b.append(sbox(a[i + 1]))
+            pb.append(permute(b[i + 1], tables.PBOX))
+            r.append(utils.xor(l[i], pb[i + 1]))
+            l.append(r[i])
+            print ''
+            utils.debug('ER' + str(i), er[i], 6)
+            utils.debug('A' + str(i + 1), a[i], 6)
+            utils.debug('B' + str(i + 1), b[i], 4)
+            utils.debug('PB' + str(i + 1), pb[i], 8)
+            utils.debug('R' + str(i + 1), r[i + 1], 8)
+            utils.debug('L' + str(i + 1), l[i + 1], 8)
+
+        # cipher
+        cipher_binary = permute(r[16] + l[16], tables.IP_INV)
+        cipher_binary_splitted = utils.string_to_array(cipher_binary, 8)
+        cipher = ''
+        for i in range(len(cipher_binary_splitted)):
+            cipher += utils.binary_to_hex(cipher_binary_splitted[i])
+        print ''
+        utils.debug('cipher binary', cipher_binary, 8)
+        utils.debug('cipher', cipher)
+
+        final_cipher += cipher
+
+    utils.debug('final chiper',final_cipher)
 
     with open('output.txt', 'wb') as f:
-        f.write(cipher)
+        f.write(final_cipher)
 
 
 start()
